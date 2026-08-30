@@ -8,7 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { normalizeEmail, isValidEmail, validatePassword, formatAuthErrorMessage } from "@/lib/validations";
 
 export function ForgotPasswordForm() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export function ForgotPasswordForm() {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [code, setCode] = React.useState("");
 
   const [isCodeSent, setIsCodeSent] = React.useState(false);
@@ -27,8 +29,15 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!email) {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail) {
       setErrorMessage("Please enter your registered email address.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setErrorMessage("Please enter a valid email address.");
       return;
     }
 
@@ -39,7 +48,7 @@ export function ForgotPasswordForm() {
     try {
       await signIn.create({
         strategy: "reset_password_email_code",
-        identifier: email,
+        identifier: normalizedEmail,
       });
 
       setIsCodeSent(true);
@@ -62,8 +71,15 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!code || !password) {
-      setErrorMessage("Please enter the reset code and your new password.");
+    const trimmedCode = code.trim();
+    if (!trimmedCode) {
+      setErrorMessage("Please enter the reset code sent to your email.");
+      return;
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setErrorMessage(passwordValidation.message || "Please choose a password with at least 8 characters.");
       return;
     }
 
@@ -74,7 +90,7 @@ export function ForgotPasswordForm() {
     try {
       const result = await signIn.attemptFirstFactor({
         strategy: "reset_password_email_code",
-        code,
+        code: trimmedCode,
         password,
       });
 
@@ -86,8 +102,7 @@ export function ForgotPasswordForm() {
       }
     } catch (err: unknown) {
       console.error("[Auth] Reset confirmation error:", err);
-      const clerkError = err as { errors?: Array<{ message?: string }> };
-      setErrorMessage(clerkError.errors?.[0]?.message || "Invalid reset code. Please try again.");
+      setErrorMessage(formatAuthErrorMessage(err, "reset"));
     } finally {
       setIsLoading(false);
     }
@@ -172,15 +187,31 @@ export function ForgotPasswordForm() {
             </Label>
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter new strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               leftIcon={<Lock className="h-4 w-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#547070] transition-colors hover:bg-[#F7F5EF] hover:text-[#193B3B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3F9495]"
+                  tabIndex={0}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  )}
+                </button>
+              }
               autoComplete="new-password"
               required
               disabled={isLoading}
             />
+            <p className="mt-1 text-[12px] text-[#547070]">Must be at least 8 characters long.</p>
           </div>
 
           <Button

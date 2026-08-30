@@ -18,3 +18,5 @@ export function validatePhone(phone: string): boolean {
 export function validateOtp(otp: string): boolean {
   return /^\d{6}$/.test(otp.trim());
 }
+
+export * from "./auth";

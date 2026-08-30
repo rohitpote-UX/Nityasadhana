@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Lock, ArrowRight, AlertCircle, Sparkles, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, AlertCircle, Sparkles, Loader2, Eye, EyeOff } from "lucide-react";
 import { resolvePostLoginRedirectAction, syncAuthenticatedRoleAction } from "@/lib/actions/auth";
+import { normalizeEmail, formatAuthErrorMessage } from "@/lib/validations";
 
 export function LoginForm() {
   const router = useRouter();
@@ -41,6 +42,7 @@ export function LoginForm() {
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isResolvingRole, setIsResolvingRole] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -85,7 +87,9 @@ export function LoginForm() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!email || !password) {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail || !password) {
       setErrorMessage("Please enter both email and password.");
       return;
     }
@@ -103,7 +107,7 @@ export function LoginForm() {
 
     try {
       const result = await signIn.create({
-        identifier: email,
+        identifier: normalizedEmail,
         password,
       });
 
@@ -128,19 +132,7 @@ export function LoginForm() {
       }
     } catch (err: unknown) {
       console.error("[Auth] Login error:", err);
-      const clerkError = err as { errors?: Array<{ message?: string; code?: string }> };
-      const firstError = clerkError.errors?.[0];
-
-      if (
-        firstError?.code === "form_identifier_not_found" ||
-        firstError?.code === "form_password_incorrect"
-      ) {
-        setErrorMessage("Incorrect email or password. Please check and try again.");
-      } else if (firstError?.message) {
-        setErrorMessage(firstError.message);
-      } else {
-        setErrorMessage("Unable to sign in. Please verify your connection or try again.");
-      }
+      setErrorMessage(formatAuthErrorMessage(err, "login"));
     } finally {
       setIsLoading(false);
     }
@@ -254,11 +246,26 @@ export function LoginForm() {
           </div>
           <Input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             leftIcon={<Lock className="h-4 w-4" />}
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-[#547070] transition-colors hover:bg-[#F7F5EF] hover:text-[#193B3B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3F9495]"
+                tabIndex={0}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />
+                )}
+              </button>
+            }
             autoComplete="current-password"
             required
             disabled={isLoading}

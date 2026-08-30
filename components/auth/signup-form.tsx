@@ -8,10 +8,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2, Sparkles } from "lucide-react";
+import { User, Mail, Lock, KeyRound, ArrowRight, AlertCircle, CheckCircle2, Sparkles, Eye, EyeOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { resolvePostLoginRedirectAction, syncAuthenticatedRoleAction } from "@/lib/actions/auth";
 import { acceptInvitationAction } from "@/lib/actions/invitations";
+import { normalizeEmail, isValidEmail, validatePassword, formatAuthErrorMessage } from "@/lib/validations";
 
 export function SignupForm() {
   const router = useRouter();
@@ -35,6 +36,8 @@ export function SignupForm() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [code, setCode] = React.useState("");
 
   const [pendingVerification, setPendingVerification] = React.useState(false);
@@ -66,13 +69,33 @@ export function SignupForm() {
       return;
     }
 
-    if (!email || !password || !firstName) {
-      setErrorMessage("Please complete all required fields.");
+    const normalizedEmail = normalizeEmail(email);
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+
+    if (!trimmedFirstName) {
+      setErrorMessage("Please enter your first name.");
+      return;
+    }
+
+    if (!normalizedEmail) {
+      setErrorMessage("Please enter your email address.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setErrorMessage(passwordValidation.message || "Please choose a password with at least 8 characters.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
+      setErrorMessage("Passwords don't match.");
       return;
     }
 
@@ -83,9 +106,9 @@ export function SignupForm() {
     try {
       const roleIntent = roleParam === "guru" ? "guru" : "shishya";
       await signUp.create({
-        firstName,
-        lastName,
-        emailAddress: email,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        emailAddress: normalizedEmail,
         password,
         unsafeMetadata: {
           roleIntent,
@@ -98,19 +121,7 @@ export function SignupForm() {
       setPendingVerification(true);
     } catch (err: unknown) {
       console.error("[Auth] Signup error:", err);
-      const clerkError = err as { errors?: Array<{ message?: string }> };
-      const message = clerkError.errors?.[0]?.message;
-
-      if (message?.toLowerCase().includes("session already exists")) {
-        setErrorMessage(
-          "A session is already active. Please sign out before creating a new Shishya account from this invitation."
-        );
-        return;
-      }
-
-      setErrorMessage(
-        message || "Unable to create account. Please check your details."
-      );
+      setErrorMessage(formatAuthErrorMessage(err, "signup"));
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +131,8 @@ export function SignupForm() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!code) {
+    const trimmedCode = code.trim();
+    if (!trimmedCode) {
       setErrorMessage("Please enter the verification code sent to your email.");
       return;
     }
@@ -131,7 +143,7 @@ export function SignupForm() {
 
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code,
+        code: trimmedCode,
       });
 
       if (completeSignUp.status === "complete") {
@@ -165,10 +177,7 @@ export function SignupForm() {
       }
     } catch (err: unknown) {
       console.error("[Auth] Verification error:", err);
-      const clerkError = err as { errors?: Array<{ message?: string }> };
-      setErrorMessage(
-        clerkError.errors?.[0]?.message || "Invalid verification code. Please try again."
-      );
+      setErrorMessage(formatAuthErrorMessage(err, "signup"));
     } finally {
       setIsLoading(false);
     }
@@ -196,7 +205,19 @@ export function SignupForm() {
           className="bg-[#B33927]/8 mb-5 flex items-start gap-2.5 rounded-xl border border-[#B33927]/20 p-3.5 text-[13px] text-[#B33927]"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{errorMessage}</span>
+          <div className="flex-1">
+            <span>{errorMessage}</span>
+            {errorMessage.toLowerCase().includes("already registered") && (
+              <div className="mt-1.5">
+                <Link
+                  href={invitationToken ? `/login?redirect_url=/invite/${encodeURIComponent(invitationToken)}` : "/login"}
+                  className="font-semibold underline hover:text-[#8E2819]"
+                >
+                  Sign in to your account →
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -254,11 +275,26 @@ export function SignupForm() {
             </Label>
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Create a strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               leftIcon={<Lock className="h-4 w-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#547070] transition-colors hover:bg-[#F7F5EF] hover:text-[#193B3B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3F9495]"
+                  tabIndex={0}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  )}
+                </button>
+              }
               autoComplete="new-password"
               required
               disabled={isLoading}
@@ -272,11 +308,26 @@ export function SignupForm() {
             </Label>
             <Input
               id="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               placeholder="Re-enter your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               leftIcon={<Lock className="h-4 w-4" />}
+              rightIcon={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#547070] transition-colors hover:bg-[#F7F5EF] hover:text-[#193B3B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3F9495]"
+                  tabIndex={0}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  )}
+                </button>
+              }
               autoComplete="new-password"
               required
               disabled={isLoading}
