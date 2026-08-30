@@ -152,7 +152,7 @@ export function ForgotPasswordForm() {
           </div>
 
           {/* Clerk Smart CAPTCHA Container */}
-          <div id="clerk-captcha" className="my-1 empty:hidden" />
+          <div id="clerk-captcha" />
 
           <Button
             type="submit"
@@ -218,7 +218,7 @@ export function ForgotPasswordForm() {
           </div>
 
           {/* Clerk Smart CAPTCHA Container */}
-          <div id="clerk-captcha" className="my-1 empty:hidden" />
+          <div id="clerk-captcha" />
 
           <Button
             type="submit"

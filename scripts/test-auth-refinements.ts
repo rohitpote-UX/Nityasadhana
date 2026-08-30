@@ -186,6 +186,13 @@ async function runAuthRefinementTests() {
     throw new Error(`Expected network notice, got '${translatedNetwork}'`);
   }
 
+  // 5g. CAPTCHA failure
+  const captchaErr = new Error("The CAPTCHA failed to load. This may be due to an unsupported browser or a browser extension.");
+  const translatedCaptcha = formatAuthErrorMessage(captchaErr, "signup");
+  if (!translatedCaptcha.includes("Security verification failed to load") && !translatedCaptcha.includes("disable ad-blockers")) {
+    throw new Error(`Expected CAPTCHA notice, got '${translatedCaptcha}'`);
+  }
+
   console.log("✓ TEST 5 PASSED: Full Clerk error mapping matrix validated.\n");
 
   // ============================================================

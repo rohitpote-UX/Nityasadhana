@@ -197,6 +197,16 @@ export function formatAuthErrorMessage(
     return "We couldn't connect right now. Please check your internet connection and try again.";
   }
 
+  // 10. Bot Protection / CAPTCHA Errors
+  if (
+    code.includes("captcha") ||
+    rawMessage.includes("captcha") ||
+    rawMessage.includes("bot protection") ||
+    rawMessage.includes("challenge")
+  ) {
+    return "Security verification failed to load. Please disable ad-blockers or refresh the page to try again.";
+  }
+
   // Context-specific fallback
   if (context === "signup") {
     return "Unable to create account. Please check your details and try again.";

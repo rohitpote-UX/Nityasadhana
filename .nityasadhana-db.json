@@ -431,6 +431,46 @@
       "status": "active",
       "createdAt": "2026-08-30T12:19:26.232Z",
       "updatedAt": "2026-08-30T12:19:26.232Z"
+    },
+    "user_a_1788093375044": {
+      "id": "user_a_1788093375044",
+      "authProviderId": "auth_a_1788093375044",
+      "role": "guru",
+      "name": "Radheshyam Das",
+      "email": "radheshyam@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:36:15.044Z",
+      "updatedAt": "2026-08-30T12:36:15.045Z"
+    },
+    "user_b_1788093375045": {
+      "id": "user_b_1788093375045",
+      "authProviderId": "auth_b_1788093375045",
+      "role": "shishya",
+      "name": "Mukunda Das",
+      "email": "mukunda@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:36:15.045Z",
+      "updatedAt": "2026-08-30T12:36:15.047Z"
+    },
+    "user_a_1788094152853": {
+      "id": "user_a_1788094152853",
+      "authProviderId": "auth_a_1788094152853",
+      "role": "guru",
+      "name": "Radheshyam Das",
+      "email": "radheshyam@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:49:12.853Z",
+      "updatedAt": "2026-08-30T12:49:12.854Z"
+    },
+    "user_b_1788094152854": {
+      "id": "user_b_1788094152854",
+      "authProviderId": "auth_b_1788094152854",
+      "role": "shishya",
+      "name": "Mukunda Das",
+      "email": "mukunda@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:49:12.854Z",
+      "updatedAt": "2026-08-30T12:49:12.855Z"
     }
   },
   "invitations": {
