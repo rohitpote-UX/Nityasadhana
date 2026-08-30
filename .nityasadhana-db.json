@@ -378,6 +378,59 @@
       "status": "active",
       "createdAt": "2026-08-30T12:02:39.129Z",
       "updatedAt": "2026-08-30T12:02:39.131Z"
+    },
+    "user_a_1788092347758": {
+      "id": "user_a_1788092347758",
+      "authProviderId": "auth_a_1788092347758",
+      "role": "guru",
+      "name": "Radheshyam Das",
+      "email": "radheshyam@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:19:07.758Z",
+      "updatedAt": "2026-08-30T12:19:07.759Z"
+    },
+    "user_b_1788092347758": {
+      "id": "user_b_1788092347758",
+      "authProviderId": "auth_b_1788092347758",
+      "role": "shishya",
+      "name": "Mukunda Das",
+      "email": "mukunda@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:19:07.758Z",
+      "updatedAt": "2026-08-30T12:19:07.761Z"
+    },
+    "user_guru_prod_1788092366195": {
+      "id": "user_guru_prod_1788092366195",
+      "authProviderId": "user_guru_prod_1788092366195",
+      "role": "guru",
+      "name": "His Grace Gauranga Das",
+      "spiritualName": "Gauranga Das",
+      "email": "gauranga@iskconpune.org",
+      "status": "active",
+      "createdAt": "2026-08-30T12:19:26.195Z",
+      "updatedAt": "2026-08-30T12:19:26.196Z"
+    },
+    "user_shishya_prod_1788092366215": {
+      "id": "user_shishya_prod_1788092366215",
+      "authProviderId": "user_shishya_prod_1788092366215",
+      "role": "shishya",
+      "name": "Mukunda Rao",
+      "spiritualName": "Mukunda Das",
+      "email": "mukunda@iskconpune.org",
+      "status": "active",
+      "createdAt": "2026-08-30T12:19:26.215Z",
+      "updatedAt": "2026-08-30T12:19:26.224Z",
+      "linkedGuruId": "user_guru_prod_1788092366195"
+    },
+    "user_guru_other_1788092366232": {
+      "id": "user_guru_other_1788092366232",
+      "authProviderId": "user_guru_other_1788092366232",
+      "role": "guru",
+      "name": "His Grace Balaram Das",
+      "email": "balaram@iskconpune.org",
+      "status": "active",
+      "createdAt": "2026-08-30T12:19:26.232Z",
+      "updatedAt": "2026-08-30T12:19:26.232Z"
     }
   },
   "invitations": {
@@ -732,6 +785,20 @@
       "updatedAt": "2026-08-30T11:39:24.690Z",
       "usedAt": "2026-08-30T11:39:24.690Z",
       "usedByUserId": "shishya_pilot_05"
+    },
+    "inv_1788092366219_j391x1": {
+      "id": "inv_1788092366219_j391x1",
+      "tokenHash": "0aa8e48cd197f7508b4ee832845a64bfd0d97a31beb79ee8ee4902439c545362",
+      "codeHash": "898b361a8a5978263c23f4024955c0c5661adc346611188bc913d7dd1a81ac63",
+      "rawCodeMasked": "NITYA-••••-KYAK",
+      "createdByUserId": "user_guru_prod_1788092366195",
+      "intendedRole": "shishya",
+      "status": "used",
+      "expiresAt": "2026-09-06T12:19:26.219Z",
+      "createdAt": "2026-08-30T12:19:26.219Z",
+      "updatedAt": "2026-08-30T12:19:26.224Z",
+      "usedAt": "2026-08-30T12:19:26.224Z",
+      "usedByUserId": "user_shishya_prod_1788092366215"
     }
   },
   "relationships": {
@@ -894,6 +961,16 @@
       "isPrimary": true,
       "createdAt": "2026-08-30T11:39:24.690Z",
       "updatedAt": "2026-08-30T11:39:24.690Z"
+    },
+    "rel_user_guru_prod_1788092366195_user_shishya_prod_1788092366215": {
+      "id": "rel_user_guru_prod_1788092366195_user_shishya_prod_1788092366215",
+      "guruId": "user_guru_prod_1788092366195",
+      "shishyaId": "user_shishya_prod_1788092366215",
+      "relationshipType": "primary_guru",
+      "status": "active",
+      "isPrimary": true,
+      "createdAt": "2026-08-30T12:19:26.224Z",
+      "updatedAt": "2026-08-30T12:19:26.224Z"
     }
   },
   "reports": {
@@ -1089,6 +1166,30 @@
       "createdAt": "2026-08-30T11:39:24.695Z",
       "updatedAt": "2026-08-30T11:39:24.695Z",
       "submittedAt": "2026-08-30T11:39:24.695Z",
+      "timezone": "Asia/Kolkata"
+    },
+    "rep_user_shishya_prod_1788092366215_2026-08-30": {
+      "id": "rep_user_shishya_prod_1788092366215_2026-08-30",
+      "studentId": "user_shishya_prod_1788092366215",
+      "practiceDate": "2026-08-30",
+      "sleepTime": "22:00",
+      "wakeUpTime": "04:00",
+      "sleepDurationMinutes": 360,
+      "japaRounds": 16,
+      "extraRounds": 0,
+      "totalRounds": 16,
+      "readingDurationMinutes": 30,
+      "hearingDurationMinutes": 20,
+      "collegeStudyDurationMinutes": 60,
+      "selfStudyDurationMinutes": 60,
+      "totalStudyDurationMinutes": 120,
+      "dayRestDurationMinutes": 0,
+      "timeWastedDurationMinutes": 10,
+      "notes": "First sincere report submitted.",
+      "status": "submitted",
+      "createdAt": "2026-08-30T12:19:26.230Z",
+      "updatedAt": "2026-08-30T12:19:26.230Z",
+      "submittedAt": "2026-08-30T12:19:26.230Z",
       "timezone": "Asia/Kolkata"
     }
   },
@@ -2041,6 +2142,55 @@
       "metadata": {
         "type": "daily_report_reminder",
         "eventKey": "daily_report:2026-08-30:shishya_pilot_02"
+      }
+    },
+    "audit_1788092366219_kn91kfs": {
+      "id": "audit_1788092366219_kn91kfs",
+      "actorId": "user_guru_prod_1788092366195",
+      "action": "INVITATION_CREATED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788092366219_j391x1",
+      "timestamp": "2026-08-30T12:19:26.219Z",
+      "metadata": {
+        "intendedRole": "shishya",
+        "rawCodeMasked": "NITYA-••••-KYAK"
+      }
+    },
+    "audit_1788092366224_4j5fiut": {
+      "id": "audit_1788092366224_4j5fiut",
+      "actorId": "user_shishya_prod_1788092366215",
+      "action": "INVITATION_USED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788092366219_j391x1",
+      "timestamp": "2026-08-30T12:19:26.224Z",
+      "metadata": {
+        "guruId": "user_guru_prod_1788092366195"
+      }
+    },
+    "audit_1788092366224_9m3k3ff": {
+      "id": "audit_1788092366224_9m3k3ff",
+      "actorId": "user_shishya_prod_1788092366215",
+      "action": "SHISHYA_CONNECTED",
+      "entityType": "Mentorship",
+      "entityId": "rel_user_guru_prod_1788092366195_user_shishya_prod_1788092366215",
+      "timestamp": "2026-08-30T12:19:26.224Z",
+      "metadata": {
+        "guruId": "user_guru_prod_1788092366195",
+        "relationshipType": "primary_guru"
+      }
+    },
+    "audit_1788092366230_g7k9109": {
+      "id": "audit_1788092366230_g7k9109",
+      "actorId": "user_shishya_prod_1788092366215",
+      "action": "REPORT_SUBMITTED",
+      "entityType": "DailyReport",
+      "entityId": "rep_user_shishya_prod_1788092366215_2026-08-30",
+      "timestamp": "2026-08-30T12:19:26.230Z",
+      "metadata": {
+        "practiceDate": "2026-08-30",
+        "status": "submitted",
+        "totalRounds": 16,
+        "sleepDuration": 360
       }
     }
   }

@@ -5,7 +5,7 @@
 // Strictly ignores Clerk auth, API endpoints, and private queries.
 // ============================================================
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_STATIC = `nityasadhana-static-${CACHE_VERSION}`;
 const CACHE_PAGES = `nityasadhana-pages-${CACHE_VERSION}`;
 

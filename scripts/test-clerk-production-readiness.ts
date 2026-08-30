@@ -116,8 +116,34 @@ async function runProductionReadinessTests() {
   console.log("-> ✓ Guru (/guru) and Shishya (/student) role destinations preserved.");
   console.log("✓ TEST 5 PASSED: Server role routing intact.\n");
 
+  // ============================================================
+  // TEST 6: FONT PRELOAD OPTIMIZATION (NO REDUNDANT PRELOADS)
+  // ============================================================
+  console.log("[TEST 6] Auditing Font Subsets & Preload Configuration...");
+  const layoutPath = path.join(rootDir, "app", "layout.tsx");
+  const layoutContent = fs.readFileSync(layoutPath, "utf-8");
+
+  if (layoutContent.includes('subsets: ["devanagari", "latin"]') && layoutContent.includes("notoSerifDevanagari")) {
+    throw new Error("FAIL: Noto Serif Devanagari should not preload redundant Latin subset!");
+  }
+  if (!layoutContent.includes('subsets: ["devanagari"]')) {
+    throw new Error("FAIL: Noto Serif Devanagari must specify devanagari subset!");
+  }
+  console.log("-> ✓ Font subsets optimized: Noto Serif Devanagari dedicated to Devanagari subset.");
+  console.log("✓ TEST 6 PASSED: Font preload optimization verified.\n");
+
+  // ============================================================
+  // TEST 7: SERVICE WORKER CACHE VERSIONING
+  // ============================================================
+  console.log("[TEST 7] Auditing Service Worker Cache Invalidation Version...");
+  if (!swContent.includes('const CACHE_VERSION = "v2"')) {
+    throw new Error("FAIL: Service Worker cache version must be bumped to v2!");
+  }
+  console.log("-> ✓ Service Worker cache version is v2 (invalidates stale mobile client assets).");
+  console.log("✓ TEST 7 PASSED: PWA Cache versioning verified.\n");
+
   console.log("================================================================");
-  console.log("=== ALL PRODUCTION READINESS AUDIT GATES PASSED (100%) =========");
+  console.log("=== ALL 7 PRODUCTION READINESS AUDIT GATES PASSED (100%) =======");
   console.log("================================================================");
 }
 

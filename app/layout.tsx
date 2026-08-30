@@ -15,9 +15,9 @@ const nunitoSans = Nunito_Sans({
 });
 
 const notoSerifDevanagari = Noto_Serif_Devanagari({
-  subsets: ["devanagari", "latin"],
+  subsets: ["devanagari"],
   variable: "--font-noto-serif-devanagari",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
