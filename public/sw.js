@@ -49,9 +49,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Strictly bypass Clerk auth, Next Server Actions, and API routes
+  // 2. Strictly bypass Clerk auth, Cloudflare CAPTCHA/Turnstile, Next Server Actions, and API routes
   if (
     url.hostname.includes("clerk") ||
+    url.hostname.includes("cloudflare") ||
+    url.hostname.includes("challenges.cloudflare.com") ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/__clerk") ||
     url.pathname.startsWith("/_clerk") ||

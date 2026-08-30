@@ -272,6 +272,9 @@ export function LoginForm() {
           />
         </div>
 
+        {/* Clerk Smart CAPTCHA Container */}
+        <div id="clerk-captcha" className="my-1 empty:hidden" />
+
         <Button
           type="submit"
           variant="primary"

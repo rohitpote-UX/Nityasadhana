@@ -151,6 +151,9 @@ export function ForgotPasswordForm() {
             />
           </div>
 
+          {/* Clerk Smart CAPTCHA Container */}
+          <div id="clerk-captcha" className="my-1 empty:hidden" />
+
           <Button
             type="submit"
             variant="primary"
@@ -213,6 +216,9 @@ export function ForgotPasswordForm() {
             />
             <p className="mt-1 text-[12px] text-[#547070]">Must be at least 8 characters long.</p>
           </div>
+
+          {/* Clerk Smart CAPTCHA Container */}
+          <div id="clerk-captcha" className="my-1 empty:hidden" />
 
           <Button
             type="submit"

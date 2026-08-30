@@ -334,6 +334,9 @@ export function SignupForm() {
             />
           </div>
 
+          {/* Clerk Smart CAPTCHA Container (Required for bot protection in custom flows) */}
+          <div id="clerk-captcha" className="my-1 empty:hidden" />
+
           <Button
             type="submit"
             variant="primary"

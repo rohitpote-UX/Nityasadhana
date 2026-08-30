@@ -358,6 +358,26 @@
       "status": "active",
       "createdAt": "2026-08-30T11:39:24.672Z",
       "updatedAt": "2026-08-30T11:39:24.691Z"
+    },
+    "user_a_1788091359129": {
+      "id": "user_a_1788091359129",
+      "authProviderId": "auth_a_1788091359129",
+      "role": "guru",
+      "name": "Radheshyam Das",
+      "email": "radheshyam@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:02:39.129Z",
+      "updatedAt": "2026-08-30T12:02:39.130Z"
+    },
+    "user_b_1788091359129": {
+      "id": "user_b_1788091359129",
+      "authProviderId": "auth_b_1788091359129",
+      "role": "shishya",
+      "name": "Mukunda Das",
+      "email": "mukunda@example.com",
+      "status": "active",
+      "createdAt": "2026-08-30T12:02:39.129Z",
+      "updatedAt": "2026-08-30T12:02:39.131Z"
     }
   },
   "invitations": {
