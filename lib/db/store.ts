@@ -124,15 +124,17 @@ export class NityasadhanaDbStore {
       if (dbFilePath) {
         runtime.fs.writeFileSync(dbFilePath, payload, "utf8");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // In serverless read-only environments where primary path fails with EROFS, fallback to /tmp
       try {
         const fallbackPath = runtime.path.join("/tmp", ".nityasadhana-db.json");
         runtime.fs.writeFileSync(fallbackPath, payload, "utf8");
-      } catch (fallbackErr: any) {
+      } catch (fallbackErr: unknown) {
+        const primaryMessage = err instanceof Error ? err.message : String(err);
+        const fallbackMessage = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
         console.warn(
           "[DbStore] Notice: Disk persistence paused in serverless container. In-memory state preserved.",
-          fallbackErr?.message || err?.message
+          fallbackMessage || primaryMessage
         );
       }
     }
