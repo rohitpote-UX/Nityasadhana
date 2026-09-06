@@ -1128,6 +1128,54 @@
       "createdAt": "2026-09-06T09:43:32.664Z",
       "updatedAt": "2026-09-06T09:43:32.734Z",
       "linkedGuruId": "guru_sec_test_01_1788687812665"
+    },
+    "guru_test_1788689450149": {
+      "id": "guru_test_1788689450149",
+      "authProviderId": "guru_test_1788689450149",
+      "role": "guru",
+      "name": "His Grace Tested Guru",
+      "spiritualName": "Tested Das",
+      "email": "guru.test.1788689450149@iskconpune.org",
+      "passwordHash": "$2b$12$BGUbcx35MkHVy.6hXUV9DO/CdqC6tv9fQs/opmmWpv5RS6QPtNCe.",
+      "status": "active",
+      "createdAt": "2026-09-06T10:10:53.209Z",
+      "updatedAt": "2026-09-06T10:10:53.210Z"
+    },
+    "shishya_test_1788689450149": {
+      "id": "shishya_test_1788689450149",
+      "authProviderId": "shishya_test_1788689450149",
+      "role": "shishya",
+      "name": "Shishya Candidate",
+      "spiritualName": "Bhakta Shishya",
+      "email": "shishya.test.1788689450149@iskconpune.org",
+      "passwordHash": "$2b$12$DmqIcpIW8/QbpYN6BTkyvOqK.QKj8qWJMqyKm.10/13Kj1XcfHQVO",
+      "status": "active",
+      "createdAt": "2026-09-06T10:10:53.578Z",
+      "updatedAt": "2026-09-06T10:10:54.000Z",
+      "linkedGuruId": "guru_test_1788689450149"
+    },
+    "guru_b_1788689450149": {
+      "id": "guru_b_1788689450149",
+      "authProviderId": "guru_b_1788689450149",
+      "role": "guru",
+      "name": "Guru B",
+      "email": "guruB.1788689450149@iskconpune.org",
+      "passwordHash": "$2b$12$BGUbcx35MkHVy.6hXUV9DO/CdqC6tv9fQs/opmmWpv5RS6QPtNCe.",
+      "status": "active",
+      "createdAt": "2026-09-06T10:10:53.601Z",
+      "updatedAt": "2026-09-06T10:10:53.601Z"
+    },
+    "shishya_b_1788689450149": {
+      "id": "shishya_b_1788689450149",
+      "authProviderId": "shishya_b_1788689450149",
+      "role": "shishya",
+      "name": "Shishya B",
+      "email": "shishyaB.1788689450149@iskconpune.org",
+      "passwordHash": "$2b$12$.HFG9U7F6e5lhoO6DQ/TvOHeeTL99eAc0rfqmMa5JBXecD8lKwB9K",
+      "status": "active",
+      "createdAt": "2026-09-06T10:10:53.611Z",
+      "updatedAt": "2026-09-06T10:10:53.626Z",
+      "linkedGuruId": "guru_b_1788689450149"
     }
   },
   "sessions": {
@@ -1172,6 +1220,14 @@
       "expiresAt": "2026-09-06T10:43:22.555Z",
       "createdAt": "2026-09-06T09:43:22.555Z",
       "usedAt": "2026-09-06T09:43:22.939Z"
+    },
+    "prt_1788689450149": {
+      "id": "prt_1788689450149",
+      "tokenHash": "abefc303cdc756f957e0cf30ab455a782ac649961aad7f89c4bf64a85a437737",
+      "userId": "shishya_test_1788689450149",
+      "expiresAt": "2026-09-06T11:10:53.631Z",
+      "createdAt": "2026-09-06T10:10:53.631Z",
+      "usedAt": "2026-09-06T10:10:54.004Z"
     }
   },
   "invitations": {
@@ -1940,6 +1996,34 @@
       "updatedAt": "2026-09-06T09:43:32.734Z",
       "usedAt": "2026-09-06T09:43:32.734Z",
       "usedByUserId": "student_sec_test_03_1788687812665"
+    },
+    "inv_1788689453219_quwhho": {
+      "id": "inv_1788689453219_quwhho",
+      "tokenHash": "e7a1c1d0f6d864e99aabee6b9f69e9b97aaf5b28e22f0dfee571997c1ab118d0",
+      "codeHash": "63a1fe7eba045671b397487770f8474ce018f0d08574347002f08f639a652498",
+      "rawCodeMasked": "NITYA-••••-GJ9X",
+      "createdByUserId": "guru_test_1788689450149",
+      "intendedRole": "shishya",
+      "status": "used",
+      "expiresAt": "2026-09-13T10:10:53.219Z",
+      "createdAt": "2026-09-06T10:10:53.219Z",
+      "updatedAt": "2026-09-06T10:10:53.589Z",
+      "usedAt": "2026-09-06T10:10:53.589Z",
+      "usedByUserId": "shishya_test_1788689450149"
+    },
+    "inv_1788689453606_ucsl29": {
+      "id": "inv_1788689453606_ucsl29",
+      "tokenHash": "bc3083012f45af5f804923dc39b993213b12f2f53abd399f63d480b12c50b90a",
+      "codeHash": "1b4a2e5c788ca11e259de03852bd841a0b05e8308e8bc626c00bdf76736860e6",
+      "rawCodeMasked": "NITYA-••••-HFME",
+      "createdByUserId": "guru_b_1788689450149",
+      "intendedRole": "shishya",
+      "status": "used",
+      "expiresAt": "2026-09-13T10:10:53.606Z",
+      "createdAt": "2026-09-06T10:10:53.606Z",
+      "updatedAt": "2026-09-06T10:10:53.626Z",
+      "usedAt": "2026-09-06T10:10:53.626Z",
+      "usedByUserId": "shishya_b_1788689450149"
     }
   },
   "relationships": {
@@ -2404,6 +2488,26 @@
       "isPrimary": true,
       "createdAt": "2026-09-06T09:43:32.734Z",
       "updatedAt": "2026-09-06T09:43:32.734Z"
+    },
+    "rel_guru_test_1788689450149_shishya_test_1788689450149": {
+      "id": "rel_guru_test_1788689450149_shishya_test_1788689450149",
+      "guruId": "guru_test_1788689450149",
+      "shishyaId": "shishya_test_1788689450149",
+      "relationshipType": "primary_guru",
+      "status": "active",
+      "isPrimary": true,
+      "createdAt": "2026-09-06T10:10:53.589Z",
+      "updatedAt": "2026-09-06T10:10:53.589Z"
+    },
+    "rel_guru_b_1788689450149_shishya_b_1788689450149": {
+      "id": "rel_guru_b_1788689450149_shishya_b_1788689450149",
+      "guruId": "guru_b_1788689450149",
+      "shishyaId": "shishya_b_1788689450149",
+      "relationshipType": "primary_guru",
+      "status": "active",
+      "isPrimary": true,
+      "createdAt": "2026-09-06T10:10:53.626Z",
+      "updatedAt": "2026-09-06T10:10:53.626Z"
     }
   },
   "reports": {
@@ -11025,6 +11129,76 @@
       "timestamp": "2026-09-06T09:43:32.734Z",
       "metadata": {
         "guruId": "guru_sec_test_01_1788687812665",
+        "relationshipType": "primary_guru"
+      }
+    },
+    "audit_1788689453219_kekeg8y": {
+      "id": "audit_1788689453219_kekeg8y",
+      "actorId": "guru_test_1788689450149",
+      "action": "INVITATION_CREATED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788689453219_quwhho",
+      "timestamp": "2026-09-06T10:10:53.219Z",
+      "metadata": {
+        "intendedRole": "shishya",
+        "rawCodeMasked": "NITYA-••••-GJ9X"
+      }
+    },
+    "audit_1788689453589_3xgr0vs": {
+      "id": "audit_1788689453589_3xgr0vs",
+      "actorId": "shishya_test_1788689450149",
+      "action": "INVITATION_USED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788689453219_quwhho",
+      "timestamp": "2026-09-06T10:10:53.589Z",
+      "metadata": {
+        "guruId": "guru_test_1788689450149"
+      }
+    },
+    "audit_1788689453589_pffxdkc": {
+      "id": "audit_1788689453589_pffxdkc",
+      "actorId": "shishya_test_1788689450149",
+      "action": "SHISHYA_CONNECTED",
+      "entityType": "Mentorship",
+      "entityId": "rel_guru_test_1788689450149_shishya_test_1788689450149",
+      "timestamp": "2026-09-06T10:10:53.589Z",
+      "metadata": {
+        "guruId": "guru_test_1788689450149",
+        "relationshipType": "primary_guru"
+      }
+    },
+    "audit_1788689453606_7n35kiu": {
+      "id": "audit_1788689453606_7n35kiu",
+      "actorId": "guru_b_1788689450149",
+      "action": "INVITATION_CREATED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788689453606_ucsl29",
+      "timestamp": "2026-09-06T10:10:53.606Z",
+      "metadata": {
+        "intendedRole": "shishya",
+        "rawCodeMasked": "NITYA-••••-HFME"
+      }
+    },
+    "audit_1788689453626_31k5qk2": {
+      "id": "audit_1788689453626_31k5qk2",
+      "actorId": "shishya_b_1788689450149",
+      "action": "INVITATION_USED",
+      "entityType": "Invitation",
+      "entityId": "inv_1788689453606_ucsl29",
+      "timestamp": "2026-09-06T10:10:53.626Z",
+      "metadata": {
+        "guruId": "guru_b_1788689450149"
+      }
+    },
+    "audit_1788689453626_ojdtz80": {
+      "id": "audit_1788689453626_ojdtz80",
+      "actorId": "shishya_b_1788689450149",
+      "action": "SHISHYA_CONNECTED",
+      "entityType": "Mentorship",
+      "entityId": "rel_guru_b_1788689450149_shishya_b_1788689450149",
+      "timestamp": "2026-09-06T10:10:53.626Z",
+      "metadata": {
+        "guruId": "guru_b_1788689450149",
         "relationshipType": "primary_guru"
       }
     }

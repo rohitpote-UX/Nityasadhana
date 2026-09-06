@@ -39,6 +39,17 @@ const getNodeRuntime = () => {
 const getDbFilePath = () => {
   const runtime = getNodeRuntime();
   if (!runtime) return "";
+  // On Vercel and serverless platforms, process.cwd() is read-only (/var/task).
+  // /tmp is the only guaranteed writable directory.
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return runtime.path.join("/tmp", ".nityasadhana-db.json");
+  }
+  return runtime.path.join(process.cwd(), ".nityasadhana-db.json");
+};
+
+const getBundledDbFilePath = () => {
+  const runtime = getNodeRuntime();
+  if (!runtime) return "";
   return runtime.path.join(process.cwd(), ".nityasadhana-db.json");
 };
 
@@ -90,9 +101,6 @@ export class NityasadhanaDbStore {
     const runtime = getNodeRuntime();
     if (!runtime) return;
 
-    const dbFilePath = getDbFilePath();
-    if (!dbFilePath) return;
-
     const snapshot: PersistedDbState = {
       users: Object.fromEntries(this.users),
       sessions: Object.fromEntries(this.sessions),
@@ -109,7 +117,25 @@ export class NityasadhanaDbStore {
       auditLogs: Object.fromEntries(this.auditLogs),
     };
 
-    runtime.fs.writeFileSync(dbFilePath, JSON.stringify(snapshot, null, 2), "utf8");
+    const payload = JSON.stringify(snapshot, null, 2);
+
+    try {
+      const dbFilePath = getDbFilePath();
+      if (dbFilePath) {
+        runtime.fs.writeFileSync(dbFilePath, payload, "utf8");
+      }
+    } catch (err: any) {
+      // In serverless read-only environments where primary path fails with EROFS, fallback to /tmp
+      try {
+        const fallbackPath = runtime.path.join("/tmp", ".nityasadhana-db.json");
+        runtime.fs.writeFileSync(fallbackPath, payload, "utf8");
+      } catch (fallbackErr: any) {
+        console.warn(
+          "[DbStore] Notice: Disk persistence paused in serverless container. In-memory state preserved.",
+          fallbackErr?.message || err?.message
+        );
+      }
+    }
   }
 
   private loadPersistedState() {
@@ -118,13 +144,33 @@ export class NityasadhanaDbStore {
     const runtime = getNodeRuntime();
     if (!runtime) return;
 
-    const dbFilePath = getDbFilePath();
-    if (!dbFilePath) return;
+    let raw: string | null = null;
+
+    // 1. Check runtime path (e.g. /tmp on Vercel or local root)
+    const primaryPath = getDbFilePath();
+    try {
+      if (primaryPath && runtime.fs.existsSync(primaryPath)) {
+        raw = runtime.fs.readFileSync(primaryPath, "utf8");
+      }
+    } catch {
+      raw = null;
+    }
+
+    // 2. Fallback to bundled repository seed data if runtime copy is not yet created
+    if (!raw || !raw.trim()) {
+      const bundledPath = getBundledDbFilePath();
+      try {
+        if (bundledPath && runtime.fs.existsSync(bundledPath)) {
+          raw = runtime.fs.readFileSync(bundledPath, "utf8");
+        }
+      } catch {
+        raw = null;
+      }
+    }
+
+    if (!raw || !raw.trim()) return;
 
     try {
-      const raw = runtime.fs.readFileSync(dbFilePath, "utf8");
-      if (!raw.trim()) return;
-
       const parsed = JSON.parse(raw) as Partial<PersistedDbState>;
       this.users = new Map(Object.entries(parsed.users ?? {}));
       this.sessions = new Map(Object.entries(parsed.sessions ?? {}));
