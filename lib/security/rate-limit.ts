@@ -99,4 +99,24 @@ export const RATE_LIMITS = {
   INVITATION_VALIDATE: { limit: 15, windowMs: 1000 * 60 }, // 15 per minute
   INVITATION_ACCEPT: { limit: 10, windowMs: 1000 * 60 * 15 }, // 10 per 15 min
   REPORT_SUBMISSION: { limit: 30, windowMs: 1000 * 60 * 60 }, // 30 per hour
+  AUTH_LOGIN: { limit: 5, windowMs: 1000 * 60 * 15 }, // 5 failed attempts per 15 min per IP/target
+  AUTH_SIGNUP: { limit: 5, windowMs: 1000 * 60 * 60 }, // 5 signups per hour per IP
+  AUTH_FORGOT_PASSWORD: { limit: 3, windowMs: 1000 * 60 * 60 }, // 3 per hour per email/IP
+  AUTH_RESET_PASSWORD: { limit: 5, windowMs: 1000 * 60 * 60 }, // 5 attempts per hour per IP
 };
+
+/**
+ * Extracts client IP safely from request headers for rate limiting.
+ */
+export function getClientIp(headersList: Headers): string {
+  const forwarded = headersList.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  const realIp = headersList.get("x-real-ip");
+  if (realIp) {
+    return realIp.trim();
+  }
+  return "127.0.0.1";
+}
+

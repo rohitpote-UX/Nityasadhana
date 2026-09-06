@@ -156,26 +156,6 @@ export async function acceptInvitationAction(secret: string): Promise<{
       shishya: shishyaDbUser,
     });
 
-    if (result.success) {
-      // Sync authoritative role and linked Guru to Clerk publicMetadata.
-      try {
-        const { clerkClient } = await import("@clerk/nextjs/server");
-        const client = await clerkClient();
-        await client.users.updateUserMetadata(authUser.id, {
-          publicMetadata: {
-            role: "shishya",
-            linkedGuruId: result.guruId || undefined,
-          },
-          unsafeMetadata: {
-            roleIntent: "shishya",
-            linkedGuruId: result.guruId || undefined,
-          },
-        });
-      } catch (err) {
-        console.warn(`[Auth] Clerk role sync skipped in acceptInvitationAction:`, err instanceof Error ? err.message : err);
-      }
-    }
-
     return result;
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to accept invitation.";

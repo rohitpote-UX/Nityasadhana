@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +20,12 @@ import {
 export function AcceptInviteCard({
   token,
   details,
+  isAuthenticated = false,
 }: {
   token: string;
   details: PublicInvitationDetails;
+  isAuthenticated?: boolean;
 }) {
-  const { isSignedIn, isLoaded } = useAuth();
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(
@@ -168,7 +168,7 @@ export function AcceptInviteCard({
 
       {/* Actions */}
       <div className="space-y-3 pt-1">
-        {isLoaded && isSignedIn ? (
+        {isAuthenticated ? (
           <Button
             variant="primary"
             size="lg"

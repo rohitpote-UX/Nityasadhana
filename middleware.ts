@@ -1,34 +1,47 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-// Define public route patterns that do not require authentication
-const isPublicRoute = createRouteMatcher([
+const PUBLIC_EXACT_ROUTES = new Set([
   "/",
   "/about",
   "/design-system",
-  "/login(.*)",
-  "/signup(.*)",
-  "/forgot-password(.*)",
-  "/invite(.*)",
   "/manifest.webmanifest",
   "/favicon.ico",
   "/icon.svg",
-  "/brand/(.*)",
-  "/icons/(.*)",
   "/sw.js",
-  "/workbox-(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  // Fail-Closed Security Policy: Enforce authentication on all routes by default
-  // unless explicitly included in the public allowlist
-  if (!isPublicRoute(req)) {
-    const { userId } = await auth();
-    if (!userId) {
-      const signInUrl = new URL("/login", req.url);
-      signInUrl.searchParams.set("redirect_url", req.nextUrl.pathname);
-      return NextResponse.redirect(signInUrl);
-    }
+const PUBLIC_ROUTE_PREFIXES = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/invite",
+  "/brand/",
+  "/icons/",
+  "/workbox-",
+];
+
+function isPublicPath(pathname: string): boolean {
+  if (pathname.startsWith("/_")) {
+    return true;
+  }
+  if (PUBLIC_EXACT_ROUTES.has(pathname)) {
+    return true;
+  }
+  return PUBLIC_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  const isPublic = isPublicPath(pathname);
+  const sessionToken = req.cookies.get("nityasadhana_session")?.value;
+
+  // Fail-Closed Security Policy: Require valid session cookie on protected routes
+  if (!isPublic && !sessionToken) {
+    const signInUrl = new URL("/login", req.url);
+    signInUrl.searchParams.set("redirect_url", pathname);
+    return NextResponse.redirect(signInUrl);
   }
 
   const response = NextResponse.next();
@@ -47,11 +60,11 @@ export default clerkMiddleware(async (auth, req) => {
   );
 
   return response;
-});
+}
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
+    // Skip Next.js internals and all static asset files
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     // Always run for API routes
     "/(api|trpc)(.*)",

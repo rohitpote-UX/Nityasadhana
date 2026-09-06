@@ -33,49 +33,50 @@ async function runPhase20SecurityTests() {
   // ------------------------------------------------------------
   const nowIso = new Date().toISOString();
 
+  const runId = Date.now();
   const guruA: DbUser = {
-    id: "guru_sec_test_01",
-    authProviderId: "auth_guru_sec_01",
+    id: `guru_sec_test_01_${runId}`,
+    authProviderId: `auth_guru_sec_01_${runId}`,
     role: "guru",
     name: "His Grace Radheshyam Das",
     spiritualName: "Radheshyam Das",
-    email: "radheshyam@test.org",
+    email: `radheshyam_${runId}@test.org`,
     status: "active",
     createdAt: nowIso,
     updatedAt: nowIso,
   };
 
   const guruB: DbUser = {
-    id: "guru_sec_test_02",
-    authProviderId: "auth_guru_sec_02",
+    id: `guru_sec_test_02_${runId}`,
+    authProviderId: `auth_guru_sec_02_${runId}`,
     role: "guru",
     name: "His Grace Gauranga Das",
     spiritualName: "Gauranga Das",
-    email: "gauranga@test.org",
+    email: `gauranga_${runId}@test.org`,
     status: "active",
     createdAt: nowIso,
     updatedAt: nowIso,
   };
 
   const studentA: DbUser = {
-    id: "student_sec_test_01",
-    authProviderId: "auth_student_sec_01",
+    id: `student_sec_test_01_${runId}`,
+    authProviderId: `auth_student_sec_01_${runId}`,
     role: "shishya",
     name: "Arjuna Das",
     spiritualName: "Arjuna Das",
-    email: "arjuna@test.org",
+    email: `arjuna_${runId}@test.org`,
     status: "active",
     createdAt: nowIso,
     updatedAt: nowIso,
   };
 
   const studentB: DbUser = {
-    id: "student_sec_test_02",
-    authProviderId: "auth_student_sec_02",
+    id: `student_sec_test_02_${runId}`,
+    authProviderId: `auth_student_sec_02_${runId}`,
     role: "shishya",
     name: "Bhima Das",
     spiritualName: "Bhima Das",
-    email: "bhima@test.org",
+    email: `bhima_${runId}@test.org`,
     status: "active",
     createdAt: nowIso,
     updatedAt: nowIso,
@@ -260,11 +261,11 @@ async function runPhase20SecurityTests() {
 
   // Student attempts to accept invitation
   const studentC: DbUser = {
-    id: "student_sec_test_03",
-    authProviderId: "auth_student_sec_03",
+    id: `student_sec_test_03_${runId}`,
+    authProviderId: `auth_student_sec_03_${runId}`,
     role: "shishya",
     name: "Sahadeva Das",
-    email: "sahadeva@test.org",
+    email: `sahadeva_${runId}@test.org`,
     status: "active",
     createdAt: nowIso,
     updatedAt: nowIso,

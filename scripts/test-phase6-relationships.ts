@@ -76,6 +76,13 @@ async function runPhase6Tests() {
   await dbStore.upsertUser(guruA);
   await dbStore.upsertUser(guruB);
 
+  const testIds = ["shishya_arjuna_001", "shishya_bhima_002", "shishya_nakula_003", "shishya_sahadeva_004"];
+  for (const [key, rel] of Array.from(((dbStore as any).relationships as Map<string, any>).entries())) {
+    if (testIds.includes(rel.shishyaId)) {
+      ((dbStore as any).relationships as Map<string, any>).delete(key);
+    }
+  }
+
   // -------------------------------------------------------------------------
   // TEST 1: Relationship Establishment via Invitation Acceptance
   // -------------------------------------------------------------------------

@@ -22,16 +22,16 @@ Nityasādhanā is architected as a **mobile-first**, high-performance web applic
 
 ```
 nityasadhana/
-├── middleware.ts                 # Next.js edge route protection using clerkMiddleware
+├── middleware.ts                 # Next.js edge route protection using first-party session cookies
 ├── app/
-│   ├── (auth)/                   # Authentication route group (login, signup, forgot-password, invite, invite/[token])
+│   ├── (auth)/                   # Authentication route group (login, signup, forgot-password, reset-password, invite, invite/[token])
 │   ├── (guru)/                   # Protected Guru guidance area (/guru, /guru/shishyas)
 │   ├── (public)/                 # Public routes (landing, about, design-system)
 │   ├── (student)/                # Protected Student sadhana area (/student)
 │   ├── error.tsx                 # Client error boundary (calm Gurukul error view)
 │   ├── global-error.tsx          # Root HTML/body fallback error boundary
 │   ├── globals.css               # CSS custom properties, resets, safe-area insets
-│   ├── layout.tsx                # Root layout with ClerkProvider, fonts & SEO metadata
+│   ├── layout.tsx                # Root layout with PWA providers, fonts & SEO metadata
 │   ├── loading.tsx               # Root suspense fallback with spiritual indicator
 │   ├── manifest.ts               # PWA Web App Manifest
 │   └── not-found.tsx             # 404 handler ("Looks like this path has wandered")

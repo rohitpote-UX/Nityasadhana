@@ -31,7 +31,11 @@ export default async function InviteTokenPage({ params }: { params: Promise<{ to
             <Logo size="lg" variant="vertical" className="mb-4" />
           </div>
 
-          <AcceptInviteCard token={decodedToken} details={details} />
+          <AcceptInviteCard
+            token={decodedToken}
+            details={details}
+            isAuthenticated={Boolean(authUser)}
+          />
         </Container>
       </Section>
     </div>

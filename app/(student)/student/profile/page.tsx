@@ -1,12 +1,13 @@
 import * as React from "react";
 import Link from "next/link";
-import { SignOutButton } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireShishya, getActiveRelationshipForShishya } from "@/lib/auth";
+import { logoutAction } from "@/lib/actions/auth";
 import { formatPracticeDate } from "@/lib/utils/greeting";
 import {
   HeartHandshake,
@@ -138,8 +139,15 @@ export default async function StudentProfilePage() {
 
         {/* Sign Out Action */}
         <div className="flex justify-center pt-2">
-          <SignOutButton redirectUrl="/login">
+          <form
+            action={async () => {
+              "use server";
+              await logoutAction();
+              redirect("/login");
+            }}
+          >
             <Button
+              type="submit"
               variant="secondary"
               size="default"
               className="w-full text-[#B33927] hover:bg-[#B33927]/10 hover:text-[#992E1E] sm:w-auto"
@@ -147,7 +155,7 @@ export default async function StudentProfilePage() {
             >
               Sign Out of Nityasādhanā
             </Button>
-          </SignOutButton>
+          </form>
         </div>
       </Container>
     </main>

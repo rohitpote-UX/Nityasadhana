@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 import { UserRole } from "@/types/auth";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { logoutAction } from "@/lib/actions/auth";
 
 export interface UserMenuProps {
   role?: UserRole;
@@ -16,11 +16,21 @@ export interface UserMenuProps {
 }
 
 export function UserMenu({ role = "shishya", userName, userEmail }: UserMenuProps) {
-  const { user } = useUser();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
-  const displayName = userName || user?.fullName || "Devotee";
-  const displayEmail = userEmail || user?.primaryEmailAddress?.emailAddress || "";
-  const displayRole: UserRole = role || (user?.publicMetadata?.role as UserRole) || "shishya";
+  const displayName = userName || (role === "guru" ? "Guru" : "Devotee");
+  const displayEmail = userEmail || "";
+  const displayRole: UserRole = role;
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutAction();
+      window.location.href = "/login";
+    } catch {
+      window.location.href = "/login";
+    }
+  };
 
   return (
     <div className="flex items-center gap-2.5 sm:gap-3">
@@ -50,17 +60,23 @@ export function UserMenu({ role = "shishya", userName, userEmail }: UserMenuProp
       </div>
 
       {/* Sign Out Button */}
-      <SignOutButton redirectUrl="/login">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="hover:bg-[#B33927]/8 px-2.5 text-[#547070] hover:text-[#B33927]"
-          aria-label="Sign out of Nityasādhanā"
-        >
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={handleSignOut}
+        disabled={isLoggingOut}
+        className="px-2.5 text-[#547070] hover:bg-[#B33927]/8 hover:text-[#B33927]"
+        aria-label="Sign out of Nityasādhanā"
+      >
+        {isLoggingOut ? (
+          <Loader2 className="h-4 w-4 animate-spin sm:mr-1.5" />
+        ) : (
           <LogOut className="h-4 w-4 sm:mr-1.5" />
-          <span className="hidden text-[13px] sm:inline">Sign Out</span>
-        </Button>
-      </SignOutButton>
+        )}
+        <span className="hidden text-[13px] sm:inline">
+          {isLoggingOut ? "Signing out..." : "Sign Out"}
+        </span>
+      </Button>
     </div>
   );
 }

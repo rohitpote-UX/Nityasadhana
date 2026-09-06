@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Compass, Home } from "lucide-react";
 
+export const dynamic = "force-static";
+
 export default function NotFound() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">

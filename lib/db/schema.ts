@@ -18,6 +18,7 @@ export interface DbUser {
   role: UserRole;
   name: string;
   email: string;
+  passwordHash?: string;
   spiritualName?: string;
   ashramId?: string;
   linkedGuruId?: string;
@@ -25,6 +26,25 @@ export interface DbUser {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface DbSession {
+  id: string; // Session ID (cuid or unique string)
+  sessionTokenHash: string; // SHA-256 hash of raw cookie token
+  userId: string;
+  expiresAt: string; // ISO UTC
+  createdAt: string; // ISO UTC
+  updatedAt: string; // ISO UTC
+}
+
+export interface DbPasswordResetToken {
+  id: string;
+  tokenHash: string; // SHA-256 hash of random reset token
+  userId: string;
+  expiresAt: string; // ISO UTC
+  usedAt?: string; // ISO UTC
+  createdAt: string; // ISO UTC
+}
+
 
 export interface DbInvitation {
   id: string;

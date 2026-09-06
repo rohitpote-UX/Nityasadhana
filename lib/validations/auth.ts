@@ -57,9 +57,9 @@ export function validatePassword(password: string): PasswordValidationResult {
 }
 
 /**
- * Clerk error structure interface for safe type extraction.
+ * Generic authentication error structure interface for safe type extraction.
  */
-interface ClerkErrorDetail {
+interface AuthErrorDetail {
   code?: string;
   message?: string;
   longMessage?: string;
@@ -67,15 +67,15 @@ interface ClerkErrorDetail {
   meta?: Record<string, unknown>;
 }
 
-interface ClerkErrorLike {
-  errors?: ClerkErrorDetail[];
+interface AuthErrorLike {
+  errors?: AuthErrorDetail[];
   message?: string;
   status?: number;
   statusCode?: number;
 }
 
 /**
- * Maps external/Clerk authentication errors into calm, human-friendly messages
+ * Maps authentication errors into calm, human-friendly messages
  * designed for Gurus, Shishyas, and devotees.
  * 
  * Never exposes raw error codes (409, 500), stack traces, or internal database errors.
@@ -91,10 +91,10 @@ export function formatAuthErrorMessage(
     return err;
   }
 
-  const clerkErr = err as ClerkErrorLike;
-  const firstError = clerkErr.errors?.[0];
+  const authErr = err as AuthErrorLike;
+  const firstError = authErr.errors?.[0];
   const code = firstError?.code?.toLowerCase() || "";
-  const rawMessage = (firstError?.message || clerkErr.message || "").toLowerCase();
+  const rawMessage = (firstError?.message || authErr.message || "").toLowerCase();
 
   // 1. Active Session Conflict
   if (
@@ -147,7 +147,7 @@ export function formatAuthErrorMessage(
     return "Please choose a password with at least 8 characters.";
   }
 
-  // 5. Compromised / Pwned Password (from Clerk security checks)
+  // 5. Compromised / Pwned Password (from security checks)
   if (
     code === "form_password_pwned" ||
     rawMessage.includes("pwned") ||
@@ -180,7 +180,7 @@ export function formatAuthErrorMessage(
   // 8. Rate Limiting
   if (
     code === "too_many_requests" ||
-    clerkErr.status === 429 ||
+    authErr.status === 429 ||
     rawMessage.includes("too many requests") ||
     rawMessage.includes("rate limit")
   ) {
