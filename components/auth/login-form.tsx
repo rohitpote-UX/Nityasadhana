@@ -2,140 +2,89 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Lock, ArrowRight, AlertCircle, Sparkles, Loader2 } from "lucide-react";
-import { login } from "@/lib/auth/client";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { loginAction } from "@/lib/actions/auth";
+import { normalizeEmail } from "@/lib/validations";
+import { UserRole } from "@/types/auth";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const roleHint = searchParams.get("role"); // "guru" | "student" (for UI hint / intent only)
+  const roleHint = searchParams.get("role"); // "guru" | "student"
   const redirectParam = searchParams.get("redirect_url");
   const errorParam = searchParams.get("error");
+  const messageParam = searchParams.get("message");
 
-  const roleHintValue = React.useMemo(
+  const roleHintValue: UserRole | null = React.useMemo(
     () => (roleHint === "guru" ? "guru" : roleHint === "student" ? "shishya" : null),
     [roleHint]
   );
-  const isSignedIn = false;
-  const currentSessionRole = null;
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isResolvingRole, setIsResolvingRole] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
-  // Surface URL error parameters to devotee cleanly
   React.useEffect(() => {
     if (errorParam === "unauthorized_role") {
-      setErrorMessage("Your account role could not be authorized for that section.");
+      setErrorMessage("Your account role is not authorized for that section.");
     } else if (errorParam === "account_suspended") {
       setErrorMessage("Your account is currently inactive. Please contact your coordinator.");
+    } else if (messageParam === "password_reset_success") {
+      setSuccessMessage("Your password has been reset successfully. Please sign in.");
     }
-  }, [errorParam]);
-
-  const hasRoleMismatch = Boolean(isSignedIn && roleHintValue && currentSessionRole && currentSessionRole !== roleHintValue);
-
-  // If already signed in and no active error, resolve server-authoritative role and redirect.
-  // Guard against repeated redirect attempts during a valid active session.
-  React.useEffect(() => {
-    if (!isSignedIn || errorParam || hasRoleMismatch) {
-      return;
-    }
-
-    let isMounted = true;
-    setIsResolvingRole(true);
-
-    if (isMounted) setIsResolvingRole(false);
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isSignedIn, redirectParam, router, errorParam, roleHintValue, hasRoleMismatch]);
+  }, [errorParam, messageParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setSuccessMessage(null);
 
-    if (!email || !password) {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail || !password) {
       setErrorMessage("Please enter both email and password.");
-      return;
-    }
-
-    if (isSignedIn) {
-      router.replace(roleHintValue === "guru" ? "/guru" : "/student");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const user = await login(email, password);
-      const redirect = redirectParam && redirectParam.startsWith("/") ? redirectParam : user.role === "guru" ? "/guru" : "/student";
-      router.replace(redirect);
-    } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : "Unable to sign in. Please try again.");
+      const result = await loginAction({
+        email: normalizedEmail,
+        password,
+        redirectUrl: redirectParam,
+        preferredRole: roleHintValue,
+      });
+
+      if (result.success && result.redirectUrl) {
+        // Full navigation ensures fresh cookie and layout synchronization
+        window.location.href = result.redirectUrl;
+      } else {
+        setErrorMessage(result.error || "Incorrect email or password. Please check and try again.");
+      }
+    } catch {
+      setErrorMessage("An unexpected connection issue occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (isResolvingRole) {
-    return (
-      <Card className="flex min-h-[300px] flex-col items-center justify-center border-[rgba(63,148,149,0.16)] bg-white p-6 text-center shadow-level2 sm:p-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#A9824D]/10 text-[#A9824D]">
-          <Loader2 className="h-6 w-6 animate-spin" />
-        </div>
-        <h3 className="mt-4 text-[16px] font-bold text-[#193B3B]">
-          Entering Sādhanā Portal...
-        </h3>
-        <p className="mt-1 text-[13px] text-[#547070]">
-          Verifying your account authorization.
-        </p>
-      </Card>
-    );
-  }
-
-  if (hasRoleMismatch) {
-    return (
-      <Card className="border-[rgba(63,148,149,0.16)] bg-white p-6 text-center shadow-level2 sm:p-8">
-        <div className="mb-5 flex items-center justify-center gap-3 rounded-xl border border-[#A9824D]/25 bg-[#F7F5EF] p-4 text-[#193B3B]">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#A9824D]/10 text-[#A9824D]">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div className="text-left">
-            <div className="text-[12px] font-semibold uppercase tracking-wide text-[#547070]">
-              Active session
-            </div>
-            <div className="text-[15px] font-bold">Switch account to continue</div>
-          </div>
-        </div>
-
-        <p className="mb-5 text-[14px] text-[#547070]">
-          You are currently signed in as a {currentSessionRole === "guru" ? "Guru" : "Shishya"}.
-          To continue as a {roleHintValue === "guru" ? "Guru" : "Shishya"}, sign out and sign back in.
-        </p>
-
-        <Button
-          type="button"
-          variant="primary"
-          size="lg"
-          className="w-full"
-          onClick={() => router.replace(`/login?role=${roleHintValue || "student"}`)}
-        >
-          Sign out and continue
-        </Button>
-      </Card>
-    );
-  }
 
   return (
     <Card className="border-[rgba(63,148,149,0.16)] bg-white p-6 shadow-level2 sm:p-8">
@@ -152,14 +101,37 @@ export function LoginForm() {
         </div>
       )}
 
+      {/* Success Message */}
+      {successMessage && (
+        <div
+          role="status"
+          className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#328A7A]/20 bg-[#328A7A]/10 p-3.5 text-[13px] text-[#328A7A]"
+        >
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
       {/* Error Feedback */}
       {errorMessage && (
         <div
           role="alert"
-          className="bg-[#B33927]/8 mb-5 flex items-start gap-2.5 rounded-xl border border-[#B33927]/20 p-3.5 text-[13px] text-[#B33927]"
+          className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#B33927]/20 bg-[#B33927]/10 p-3.5 text-[13px] text-[#B33927]"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{errorMessage}</span>
+          <div className="flex-1">
+            <span>{errorMessage}</span>
+            {errorMessage.includes("Forgot password") && (
+              <div className="mt-1.5">
+                <Link
+                  href="/forgot-password"
+                  className="font-semibold underline hover:text-[#8E2819]"
+                >
+                  Go to Forgot Password →
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -201,10 +173,24 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             leftIcon={<Lock className="h-4 w-4" />}
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-[#547070] transition-colors hover:bg-[#F7F5EF] hover:text-[#193B3B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3F9495]"
+                tabIndex={0}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 shrink-0" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 shrink-0" aria-hidden="true" />
+                )}
+              </button>
+            }
             autoComplete="current-password"
             required
             disabled={isLoading}
-            rightIcon={<button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((value) => !value)}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>}
           />
         </div>
 

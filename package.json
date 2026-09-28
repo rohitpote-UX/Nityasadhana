@@ -5,8 +5,6 @@
   "description": "A mobile-first Guru-Shishya Sadhana and spiritual discipline platform for ISKCON Pune.",
   "scripts": {
     "dev": "next dev",
-    "backend:dev": "uvicorn app.main:app --app-dir backend --reload --port 8000",
-    "backend:test": "pytest backend/tests -q",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,6 +13,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json,css}\""
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "lucide-react": "^0.475.0",
     "next": "^15.2.9",
@@ -23,6 +22,7 @@
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.13.4",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",

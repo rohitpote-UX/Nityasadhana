@@ -96,6 +96,13 @@ async function runPhase8Tests() {
   };
   await dbStore.upsertUser(shishyaB);
 
+  const testStudentIds = [shishyaA.id, shishyaB.id];
+  for (const [key, report] of Array.from(((dbStore as any).reports as Map<string, any>).entries())) {
+    if (testStudentIds.includes(report.studentId)) {
+      ((dbStore as any).reports as Map<string, any>).delete(key);
+    }
+  }
+
   const todayStr = getLocalDateString(new Date(), "Asia/Kolkata");
 
   // -------------------------------------------------------------------------
