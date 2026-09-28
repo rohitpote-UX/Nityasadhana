@@ -1,9 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito_Sans, Noto_Serif_Devanagari } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config/site";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-nunito-sans",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const notoSerifDevanagari = Noto_Serif_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-noto-serif-devanagari",
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: "#EAF7F4",
@@ -59,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${nunitoSans.variable} ${notoSerifDevanagari.variable}`}>
       <body className="min-h-screen bg-[#EAF7F4] text-[#193B3B] antialiased selection:bg-[#3F9495] selection:text-white">
         <ServiceWorkerRegister />
         <OfflineIndicator />

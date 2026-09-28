@@ -20,13 +20,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function StudentProfilePage() {
-  // Server-authoritative role guard (enforces role === 'shishya')
   const user = await requireShishya();
-
-  // Fetch connected Guru relationship
   const guruConnection = await getActiveRelationshipForShishya(user.id);
   const connectedGuru = guruConnection?.guru;
-
   const joinDate = user.createdAt
     ? formatPracticeDate(new Date(user.createdAt))
     : "Recently joined";
@@ -34,7 +30,6 @@ export default async function StudentProfilePage() {
   return (
     <main className="py-6 sm:py-10">
       <Container size="reading">
-        {/* Profile Page Header */}
         <div className="mb-6 space-y-1 sm:mb-8">
           <div className="flex items-center gap-1.5 text-[13px] font-medium text-[#A9824D]">
             <Sparkles className="h-3.5 w-3.5" />
@@ -48,7 +43,6 @@ export default async function StudentProfilePage() {
           </p>
         </div>
 
-        {/* Devotee Identity Card */}
         <Card className="mb-6 border-[rgba(63,148,149,0.16)] bg-white p-5 shadow-level1 sm:p-7">
           <div className="flex items-center gap-4">
             <Avatar name={user.name} size="lg" />
@@ -76,7 +70,6 @@ export default async function StudentProfilePage() {
           </div>
         </Card>
 
-        {/* Connected Guru Card */}
         <div className="mb-6 space-y-2">
           <h3 className="text-[14px] font-bold text-[#193B3B]">Your Guru</h3>
           {connectedGuru ? (
@@ -115,7 +108,6 @@ export default async function StudentProfilePage() {
           )}
         </div>
 
-        {/* Account Details Card */}
         <div className="mb-8 space-y-2">
           <h3 className="text-[14px] font-bold text-[#193B3B]">Account Details</h3>
           <Card className="divide-y divide-[rgba(63,148,149,0.12)] border-[rgba(63,148,149,0.16)] bg-white p-0 shadow-level1">
@@ -136,12 +128,13 @@ export default async function StudentProfilePage() {
           </Card>
         </div>
 
-        {/* Sign Out Action */}
         <div className="flex justify-center pt-2">
           <LogoutButton
-              className="w-full text-[#B33927] hover:bg-[#B33927]/10 hover:text-[#992E1E] sm:w-auto"
-              leftIcon={<LogOut className="h-4 w-4" />}
-            >Sign Out of Nityasādhanā</LogoutButton>
+            className="w-full text-[#B33927] hover:bg-[#B33927]/10 hover:text-[#992E1E] sm:w-auto"
+            leftIcon={<LogOut className="h-4 w-4" />}
+          >
+            Sign Out of Nityasādhanā
+          </LogoutButton>
         </div>
       </Container>
     </main>

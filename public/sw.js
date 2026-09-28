@@ -2,10 +2,10 @@
 // NITYASĀDHANĀ — SERVICE WORKER (PWA & OFFLINE SHELL)
 // ============================================================
 // Caches application shell, static assets, and offline fallback.
-// Strictly ignores Clerk auth, API endpoints, and private queries.
+// Strictly ignores auth sessions, API endpoints, and private queries.
 // ============================================================
 
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_STATIC = `nityasadhana-static-${CACHE_VERSION}`;
 const CACHE_PAGES = `nityasadhana-pages-${CACHE_VERSION}`;
 
@@ -49,12 +49,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Strictly bypass Clerk auth, Next Server Actions, and API routes
+  // 2. Strictly bypass Cloudflare CAPTCHA/Turnstile, Next Server Actions, and API routes
   if (
-    url.hostname.includes("clerk") ||
+    url.hostname.includes("cloudflare") ||
+    url.hostname.includes("challenges.cloudflare.com") ||
     url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/__clerk") ||
-    url.pathname.startsWith("/_clerk") ||
     request.headers.get("x-action") ||
     request.headers.get("next-action")
   ) {

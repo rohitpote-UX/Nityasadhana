@@ -1,5 +1,7 @@
 import {
   DbUser,
+  DbSession,
+  DbPasswordResetToken,
   DbInvitation,
   DbGuruShishyaRelationship,
   DbDailySadhanaReport,
@@ -37,11 +39,24 @@ const getNodeRuntime = () => {
 const getDbFilePath = () => {
   const runtime = getNodeRuntime();
   if (!runtime) return "";
+  // On Vercel and serverless platforms, process.cwd() is read-only (/var/task).
+  // /tmp is the only guaranteed writable directory.
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return runtime.path.join("/tmp", ".nityasadhana-db.json");
+  }
+  return runtime.path.join(process.cwd(), ".nityasadhana-db.json");
+};
+
+const getBundledDbFilePath = () => {
+  const runtime = getNodeRuntime();
+  if (!runtime) return "";
   return runtime.path.join(process.cwd(), ".nityasadhana-db.json");
 };
 
 type PersistedDbState = {
   users: Record<string, DbUser>;
+  sessions?: Record<string, DbSession>;
+  resetTokens?: Record<string, DbPasswordResetToken>;
   invitations: Record<string, DbInvitation>;
   relationships: Record<string, DbGuruShishyaRelationship>;
   reports: Record<string, DbDailySadhanaReport>;
@@ -60,6 +75,8 @@ type PersistedDbState = {
  */
 export class NityasadhanaDbStore {
   private users: Map<string, DbUser> = new Map();
+  private sessions: Map<string, DbSession> = new Map();
+  private resetTokens: Map<string, DbPasswordResetToken> = new Map();
   private invitations: Map<string, DbInvitation> = new Map();
   private relationships: Map<string, DbGuruShishyaRelationship> = new Map();
   private reports: Map<string, DbDailySadhanaReport> = new Map();
@@ -84,11 +101,10 @@ export class NityasadhanaDbStore {
     const runtime = getNodeRuntime();
     if (!runtime) return;
 
-    const dbFilePath = getDbFilePath();
-    if (!dbFilePath) return;
-
     const snapshot: PersistedDbState = {
       users: Object.fromEntries(this.users),
+      sessions: Object.fromEntries(this.sessions),
+      resetTokens: Object.fromEntries(this.resetTokens),
       invitations: Object.fromEntries(this.invitations),
       relationships: Object.fromEntries(this.relationships),
       reports: Object.fromEntries(this.reports),
@@ -101,7 +117,27 @@ export class NityasadhanaDbStore {
       auditLogs: Object.fromEntries(this.auditLogs),
     };
 
-    runtime.fs.writeFileSync(dbFilePath, JSON.stringify(snapshot, null, 2), "utf8");
+    const payload = JSON.stringify(snapshot, null, 2);
+
+    try {
+      const dbFilePath = getDbFilePath();
+      if (dbFilePath) {
+        runtime.fs.writeFileSync(dbFilePath, payload, "utf8");
+      }
+    } catch (err: unknown) {
+      // In serverless read-only environments where primary path fails with EROFS, fallback to /tmp
+      try {
+        const fallbackPath = runtime.path.join("/tmp", ".nityasadhana-db.json");
+        runtime.fs.writeFileSync(fallbackPath, payload, "utf8");
+      } catch (fallbackErr: unknown) {
+        const primaryMessage = err instanceof Error ? err.message : String(err);
+        const fallbackMessage = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
+        console.warn(
+          "[DbStore] Notice: Disk persistence paused in serverless container. In-memory state preserved.",
+          fallbackMessage || primaryMessage
+        );
+      }
+    }
   }
 
   private loadPersistedState() {
@@ -110,15 +146,37 @@ export class NityasadhanaDbStore {
     const runtime = getNodeRuntime();
     if (!runtime) return;
 
-    const dbFilePath = getDbFilePath();
-    if (!dbFilePath) return;
+    let raw: string | null = null;
+
+    // 1. Check runtime path (e.g. /tmp on Vercel or local root)
+    const primaryPath = getDbFilePath();
+    try {
+      if (primaryPath && runtime.fs.existsSync(primaryPath)) {
+        raw = runtime.fs.readFileSync(primaryPath, "utf8");
+      }
+    } catch {
+      raw = null;
+    }
+
+    // 2. Fallback to bundled repository seed data if runtime copy is not yet created
+    if (!raw || !raw.trim()) {
+      const bundledPath = getBundledDbFilePath();
+      try {
+        if (bundledPath && runtime.fs.existsSync(bundledPath)) {
+          raw = runtime.fs.readFileSync(bundledPath, "utf8");
+        }
+      } catch {
+        raw = null;
+      }
+    }
+
+    if (!raw || !raw.trim()) return;
 
     try {
-      const raw = runtime.fs.readFileSync(dbFilePath, "utf8");
-      if (!raw.trim()) return;
-
       const parsed = JSON.parse(raw) as Partial<PersistedDbState>;
       this.users = new Map(Object.entries(parsed.users ?? {}));
+      this.sessions = new Map(Object.entries(parsed.sessions ?? {}));
+      this.resetTokens = new Map(Object.entries(parsed.resetTokens ?? {}));
       this.invitations = new Map(Object.entries(parsed.invitations ?? {}));
       this.relationships = new Map(Object.entries(parsed.relationships ?? {}));
       this.reports = new Map(Object.entries(parsed.reports ?? {}));
@@ -230,6 +288,7 @@ export class NityasadhanaDbStore {
       const existing = this.users.get(user.id);
       const updatedUser: DbUser = {
         ...user,
+        passwordHash: user.passwordHash ?? existing?.passwordHash,
         linkedGuruId: user.linkedGuruId ?? existing?.linkedGuruId,
         createdAt: existing?.createdAt || user.createdAt || now,
         updatedAt: now,
@@ -237,6 +296,163 @@ export class NityasadhanaDbStore {
       this.users.set(user.id, updatedUser);
       this.persistState();
       return updatedUser;
+    } finally {
+      unlock();
+    }
+  }
+
+  async createUser(user: DbUser): Promise<DbUser> {
+    const unlock = await this.acquireLock();
+    try {
+      const now = new Date().toISOString();
+      const newUser: DbUser = {
+        ...user,
+        createdAt: user.createdAt || now,
+        updatedAt: now,
+      };
+      this.users.set(newUser.id, newUser);
+      this.persistState();
+      return newUser;
+    } finally {
+      unlock();
+    }
+  }
+
+  async updateUserPassword(userId: string, passwordHash: string): Promise<boolean> {
+    const unlock = await this.acquireLock();
+    try {
+      const existing = this.users.get(userId);
+      if (!existing) return false;
+      const now = new Date().toISOString();
+      this.users.set(userId, {
+        ...existing,
+        passwordHash,
+        updatedAt: now,
+      });
+      this.persistState();
+      return true;
+    } finally {
+      unlock();
+    }
+  }
+
+  // ============================================================
+  // SESSION OPERATIONS
+  // ============================================================
+
+  async createSession(session: DbSession): Promise<DbSession> {
+    const unlock = await this.acquireLock();
+    try {
+      this.sessions.set(session.id, session);
+      this.persistState();
+      return session;
+    } finally {
+      unlock();
+    }
+  }
+
+  async getSessionByTokenHash(tokenHash: string): Promise<DbSession | null> {
+    this.loadPersistedState();
+    const now = new Date();
+    for (const session of this.sessions.values()) {
+      if (session.sessionTokenHash === tokenHash) {
+        if (new Date(session.expiresAt) <= now) {
+          this.sessions.delete(session.id);
+          this.persistState();
+          return null;
+        }
+        return { ...session };
+      }
+    }
+    return null;
+  }
+
+  async deleteSession(sessionId: string): Promise<boolean> {
+    const unlock = await this.acquireLock();
+    try {
+      const deleted = this.sessions.delete(sessionId);
+      if (deleted) this.persistState();
+      return deleted;
+    } finally {
+      unlock();
+    }
+  }
+
+  async deleteSessionByTokenHash(tokenHash: string): Promise<boolean> {
+    const unlock = await this.acquireLock();
+    try {
+      let foundId: string | null = null;
+      for (const [id, session] of this.sessions.entries()) {
+        if (session.sessionTokenHash === tokenHash) {
+          foundId = id;
+          break;
+        }
+      }
+      if (foundId) {
+        this.sessions.delete(foundId);
+        this.persistState();
+        return true;
+      }
+      return false;
+    } finally {
+      unlock();
+    }
+  }
+
+  async deleteSessionsByUserId(userId: string): Promise<number> {
+    const unlock = await this.acquireLock();
+    try {
+      let count = 0;
+      for (const [id, session] of this.sessions.entries()) {
+        if (session.userId === userId) {
+          this.sessions.delete(id);
+          count++;
+        }
+      }
+      if (count > 0) this.persistState();
+      return count;
+    } finally {
+      unlock();
+    }
+  }
+
+  // ============================================================
+  // PASSWORD RESET TOKEN OPERATIONS
+  // ============================================================
+
+  async createPasswordResetToken(token: DbPasswordResetToken): Promise<DbPasswordResetToken> {
+    const unlock = await this.acquireLock();
+    try {
+      this.resetTokens.set(token.id, token);
+      this.persistState();
+      return token;
+    } finally {
+      unlock();
+    }
+  }
+
+  async getPasswordResetTokenByHash(tokenHash: string): Promise<DbPasswordResetToken | null> {
+    this.loadPersistedState();
+    const now = new Date();
+    for (const token of this.resetTokens.values()) {
+      if (token.tokenHash === tokenHash) {
+        if (token.usedAt || new Date(token.expiresAt) <= now) {
+          return null;
+        }
+        return { ...token };
+      }
+    }
+    return null;
+  }
+
+  async markPasswordResetTokenUsed(tokenId: string): Promise<boolean> {
+    const unlock = await this.acquireLock();
+    try {
+      const token = this.resetTokens.get(tokenId);
+      if (!token) return false;
+      token.usedAt = new Date().toISOString();
+      this.persistState();
+      return true;
     } finally {
       unlock();
     }
